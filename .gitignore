@@ -32,3 +32,5 @@ coverage/
 
 # CodeGraph
 .codegraph/
+.agents/
+.claude/
