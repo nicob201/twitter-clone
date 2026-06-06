@@ -1,0 +1,36 @@
+import { getPrisma } from '../../shared/db/prisma.js';
+import { AppError } from '../../shared/errors/index.js';
+import type { UserProfileResponse } from './userProfile.types.js';
+
+export async function getProfile(userId: string): Promise<UserProfileResponse> {
+  const prisma = getPrisma();
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      username: true,
+      createdAt: true,
+      _count: {
+        select: {
+          tweets: true,
+          followers: true,
+          following: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  return {
+    id: user.id,
+    username: user.username,
+    createdAt: user.createdAt,
+    tweetsCount: user._count.tweets,
+    followersCount: user._count.followers,
+    followingCount: user._count.following,
+  };
+}
