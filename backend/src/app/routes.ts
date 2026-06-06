@@ -6,6 +6,7 @@ import { followsRouter } from '../modules/follows/index.js';
 import { likesRouter } from '../modules/likes/index.js';
 import { timelineRouter } from '../modules/timeline/index.js';
 import { userProfileRouter } from '../modules/user-profile/index.js';
+import { followersRouter } from '../modules/followers-list/index.js';
 
 export function registerRoutes(app: Application): void {
   app.use('/health', healthRouter);
@@ -15,4 +16,5 @@ export function registerRoutes(app: Application): void {
   app.use('/api/tweets', likesRouter);
   app.use('/api/timeline', timelineRouter);
   app.use('/api/users', userProfileRouter);
+  app.use('/api/users', followersRouter);
 }
