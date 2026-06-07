@@ -17,6 +17,8 @@ interface UserProfileData {
   followersCount: number;
   followingCount: number;
   isFollowedByCurrentUser: boolean;
+  bio: string | null;
+  avatarUrl: string | null;
 }
 
 const mockDb = {
@@ -65,6 +67,8 @@ describe('GET /api/users/:userId', () => {
       id: 'user-1',
       username: 'testuser',
       createdAt: new Date('2025-01-01'),
+      bio: 'A test user',
+      avatarUrl: 'https://example.com/avatar.png',
       _count: {
         tweets: 42,
         followers: 100,
@@ -94,6 +98,8 @@ describe('GET /api/users/:userId', () => {
     expect(body.data.followersCount).toBe(100);
     expect(body.data.followingCount).toBe(7);
     expect(body.data.isFollowedByCurrentUser).toBe(true);
+    expect(body.data.bio).toBe('A test user');
+    expect(body.data.avatarUrl).toBe('https://example.com/avatar.png');
   });
 
   it('should return isFollowedByCurrentUser as false when not following', async () => {

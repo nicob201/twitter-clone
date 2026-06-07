@@ -62,6 +62,20 @@ const mockOwnProfile = {
   followersCount: 100,
   followingCount: 7,
   isFollowedByCurrentUser: false,
+  bio: 'A test user',
+  avatarUrl: null,
+};
+
+const mockProfileWithAvatar = {
+  id: 'user-1',
+  username: 'testuser',
+  createdAt: '2025-01-01T00:00:00.000Z',
+  tweetsCount: 42,
+  followersCount: 100,
+  followingCount: 7,
+  isFollowedByCurrentUser: false,
+  bio: 'A test user',
+  avatarUrl: 'https://example.com/avatar.png',
 };
 
 const mockOtherProfile = {
@@ -72,6 +86,8 @@ const mockOtherProfile = {
   followersCount: 5,
   followingCount: 2,
   isFollowedByCurrentUser: false,
+  bio: 'Another user',
+  avatarUrl: null,
 };
 
 const mockOtherProfileFollowed = {
@@ -99,7 +115,7 @@ describe('ProfilePage', () => {
     });
   });
 
-  it('should show own profile without follow button', async () => {
+  it('should show own profile with avatar placeholder and bio', async () => {
     mockFetchProfile.mockResolvedValue(mockOwnProfile);
 
     renderWithRoute('/profile');
@@ -108,15 +124,29 @@ describe('ProfilePage', () => {
       expect(screen.getByText('testuser')).toBeDefined();
     });
 
+    expect(screen.getByTestId('avatar-placeholder')).toBeDefined();
+    expect(screen.getByText('T')).toBeDefined();
+    expect(screen.getByText('A test user')).toBeDefined();
     expect(screen.getByText('Joined January 2025')).toBeDefined();
     expect(screen.getByText('42')).toBeDefined();
     expect(screen.getByText('100')).toBeDefined();
     expect(screen.getByText('7')).toBeDefined();
-    expect(screen.getByText('Tweets')).toBeDefined();
-    expect(screen.getByText('Followers')).toBeDefined();
-    expect(screen.getByText('Following')).toBeDefined();
     expect(screen.queryByRole('button', { name: 'Follow' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Unfollow' })).toBeNull();
+  });
+
+  it('should render avatar image when avatarUrl is provided', async () => {
+    mockFetchProfile.mockResolvedValue(mockProfileWithAvatar);
+
+    renderWithRoute('/profile');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('avatar-image')).toBeDefined();
+    });
+
+    expect(screen.getByTestId('avatar-image').getAttribute('src')).toBe(
+      'https://example.com/avatar.png',
+    );
   });
 
   it('should show error state on failure', async () => {

@@ -19,6 +19,8 @@ const mockProfile = {
   followersCount: 100,
   followingCount: 7,
   isFollowedByCurrentUser: false,
+  bio: 'A test user',
+  avatarUrl: 'https://example.com/avatar.png',
 };
 
 const mockProfileB = {
@@ -29,6 +31,8 @@ const mockProfileB = {
   followersCount: 5,
   followingCount: 2,
   isFollowedByCurrentUser: false,
+  bio: null,
+  avatarUrl: null,
 };
 
 describe('useUserProfile', () => {

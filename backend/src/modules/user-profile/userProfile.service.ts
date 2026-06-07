@@ -15,6 +15,8 @@ export async function getProfile(
       id: true,
       username: true,
       createdAt: true,
+      bio: true,
+      avatarUrl: true,
       _count: {
         select: {
           tweets: true,
@@ -35,6 +37,8 @@ export async function getProfile(
     id: user.id,
     username: user.username,
     createdAt: user.createdAt,
+    bio: user.bio,
+    avatarUrl: user.avatarUrl,
     tweetsCount: user._count.tweets,
     followersCount: user._count.followers,
     followingCount: user._count.following,

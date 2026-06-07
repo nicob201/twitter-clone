@@ -3,6 +3,7 @@ import { useAuth } from '../../auth/hooks/useAuth.js';
 import { useUserProfile } from '../hooks/useUserProfile.js';
 import { useProfileFollow } from '../hooks/useProfileFollow.js';
 import FollowButton from '../components/FollowButton.js';
+import Avatar from '../components/Avatar.js';
 
 function ProfilePage() {
   const { user } = useAuth();
@@ -51,8 +52,15 @@ function ProfilePage() {
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-xl font-bold">{profile.username}</h1>
-      <p className="mb-4 text-gray-500">Joined {joinedDate}</p>
+      <div className="mb-4 flex items-center gap-4">
+        <Avatar avatarUrl={profile.avatarUrl} username={profile.username} size="lg" />
+        <div>
+          <h1 className="text-xl font-bold">{profile.username}</h1>
+          <p className="text-gray-500">Joined {joinedDate}</p>
+        </div>
+      </div>
+
+      {profile.bio && <p className="mb-4 text-gray-700">{profile.bio}</p>}
 
       <FollowButton
         isFollowedByCurrentUser={profile.isFollowedByCurrentUser}

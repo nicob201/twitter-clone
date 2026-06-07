@@ -6,4 +6,6 @@ export interface UserProfileResponse {
   followersCount: number;
   followingCount: number;
   isFollowedByCurrentUser: boolean;
+  bio: string | null;
+  avatarUrl: string | null;
 }
