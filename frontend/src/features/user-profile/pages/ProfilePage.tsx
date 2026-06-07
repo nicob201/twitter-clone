@@ -20,7 +20,7 @@ function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="p-4">
+      <div className="border-b border-gray-100 px-4 py-3">
         <div data-testid="loading-state">Loading profile...</div>
       </div>
     );
@@ -28,7 +28,7 @@ function ProfilePage() {
 
   if (error) {
     return (
-      <div className="p-4">
+      <div className="border-b border-gray-100 px-4 py-3">
         <div data-testid="error-state" className="text-red-500">
           {error}
         </div>
@@ -38,7 +38,7 @@ function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="p-4">
+      <div className="border-b border-gray-100 px-4 py-3">
         <div>Profile not found.</div>
       </div>
     );
@@ -51,42 +51,46 @@ function ProfilePage() {
   });
 
   return (
-    <div className="p-4">
-      <div className="mb-4 flex items-center gap-4">
-        <Avatar avatarUrl={profile.avatarUrl} username={profile.username} size="lg" />
-        <div>
-          <h1 className="text-xl font-bold">{profile.username}</h1>
-          <p className="text-gray-500">Joined {joinedDate}</p>
+    <div>
+      <div className="border-b border-gray-100 px-4 pt-3 pb-4">
+        <div className="flex items-start justify-between">
+          <Avatar avatarUrl={profile.avatarUrl} username={profile.username} size="xl" />
+          <FollowButton
+            isFollowedByCurrentUser={profile.isFollowedByCurrentUser}
+            isOwnProfile={isOwnProfile}
+            onFollow={() => {
+              void follow(profile.id);
+            }}
+            onUnfollow={() => {
+              void unfollow(profile.id);
+            }}
+            isLoading={isFollowLoading}
+            error={followError}
+          />
         </div>
-      </div>
-
-      {profile.bio && <p className="mb-4 text-gray-700">{profile.bio}</p>}
-
-      <FollowButton
-        isFollowedByCurrentUser={profile.isFollowedByCurrentUser}
-        isOwnProfile={isOwnProfile}
-        onFollow={() => {
-          void follow(profile.id);
-        }}
-        onUnfollow={() => {
-          void unfollow(profile.id);
-        }}
-        isLoading={isFollowLoading}
-        error={followError}
-      />
-
-      <div className="flex gap-6">
-        <div>
-          <p className="text-lg font-semibold">{profile.tweetsCount}</p>
-          <p className="text-sm text-gray-500">Tweets</p>
+        <div className="mt-4">
+          <h1 className="text-xl font-bold text-gray-900">{profile.username}</h1>
+          <p className="text-sm text-gray-500">@{profile.username}</p>
         </div>
-        <div>
-          <p className="text-lg font-semibold">{profile.followersCount}</p>
-          <p className="text-sm text-gray-500">Followers</p>
+        {profile.bio && (
+          <p className="mt-3 text-[15px] leading-normal text-gray-900">{profile.bio}</p>
+        )}
+        <div className="mt-3 flex items-center gap-1 text-sm text-gray-500">
+          <span>Joined {joinedDate}</span>
         </div>
-        <div>
-          <p className="text-lg font-semibold">{profile.followingCount}</p>
-          <p className="text-sm text-gray-500">Following</p>
+        <div className="mt-4 flex gap-5">
+          <div>
+            <span className="font-bold text-gray-900">{profile.tweetsCount}</span>
+            <span className="ml-1 text-sm text-gray-500">Tweets</span>
+          </div>
+          <div>
+            <span className="font-bold text-gray-900">{profile.followingCount}</span>
+            <span className="ml-1 text-sm text-gray-500">Following</span>
+          </div>
+          <div>
+            <span className="font-bold text-gray-900">{profile.followersCount}</span>
+            <span className="ml-1 text-sm text-gray-500">Followers</span>
+          </div>
         </div>
       </div>
     </div>

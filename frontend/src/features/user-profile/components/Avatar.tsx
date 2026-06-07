@@ -1,11 +1,16 @@
 interface AvatarProps {
   avatarUrl: string | null;
   username: string;
-  size?: 'md' | 'lg';
+  size?: 'md' | 'lg' | 'xl';
 }
 
 function Avatar({ avatarUrl, username, size = 'md' }: AvatarProps) {
-  const sizeClass = size === 'lg' ? 'h-16 w-16 text-xl' : 'h-10 w-10 text-sm';
+  const sizeClass =
+    size === 'xl'
+      ? 'h-24 w-24 text-4xl'
+      : size === 'lg'
+        ? 'h-16 w-16 text-xl'
+        : 'h-10 w-10 text-sm';
 
   if (avatarUrl) {
     return (
@@ -20,7 +25,7 @@ function Avatar({ avatarUrl, username, size = 'md' }: AvatarProps) {
 
   return (
     <div
-      className={`${sizeClass} flex items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold`}
+      className={`${sizeClass} flex items-center justify-center rounded-full bg-blue-100 font-bold text-blue-600`}
       data-testid="avatar-placeholder"
     >
       {username[0]?.toUpperCase()}
