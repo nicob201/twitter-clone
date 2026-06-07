@@ -15,6 +15,7 @@ export function createApp(): express.Application {
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cors({ origin: env.frontendUrl }));
   app.use('/uploads', express.static(path.resolve(__dirname, '../..', 'uploads')));
+  app.use('/seed-assets', express.static(path.resolve(__dirname, '../..', 'seed-assets')));
   app.use(express.json());
 
   registerRoutes(app);

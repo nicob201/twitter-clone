@@ -24,6 +24,7 @@ interface TweetSeed {
   username: string;
   content: string;
   daysAgo: number;
+  imageUrl?: string;
 }
 
 type FollowSeed = [string, string];
@@ -93,7 +94,12 @@ const USERS: UserSeed[] = [
 ];
 
 const TWEETS: TweetSeed[] = [
-  { username: 'demo', content: 'Just deployed a new feature to production!', daysAgo: 0 },
+  {
+    username: 'demo',
+    content: 'Just deployed a new feature to production!',
+    daysAgo: 0,
+    imageUrl: '/seed-assets/laptop.jpg',
+  },
   {
     username: 'demo',
     content: 'Working on improving the timeline algorithm this week.',
@@ -105,7 +111,12 @@ const TWEETS: TweetSeed[] = [
     daysAgo: 3,
   },
   { username: 'demo', content: 'Anyone else love the new React 19 features?', daysAgo: 5 },
-  { username: 'demo', content: 'Morning coffee and code -- name a better combo.', daysAgo: 7 },
+  {
+    username: 'demo',
+    content: 'Morning coffee and code -- name a better combo.',
+    daysAgo: 3,
+    imageUrl: '/seed-assets/coffee.jpg',
+  },
   {
     username: 'alice',
     content: 'Just finished reading "Designing Data-Intensive Applications". Highly recommend!',
@@ -121,14 +132,24 @@ const TWEETS: TweetSeed[] = [
     content: 'Pair programming > solo programming. Change my mind.',
     daysAgo: 4,
   },
-  { username: 'alice', content: 'Deploying on a Friday? Living dangerously!', daysAgo: 6 },
+  {
+    username: 'alice',
+    content: 'Deploying on a Friday? Living dangerously!',
+    daysAgo: 4,
+    imageUrl: '/seed-assets/city.jpg',
+  },
   {
     username: 'bob',
     content: 'Simplicity is the ultimate sophistication in software engineering.',
     daysAgo: 0,
   },
   { username: 'bob', content: 'Writing tests first makes me sleep better at night.', daysAgo: 3 },
-  { username: 'bob', content: 'Just hit 1000 contributions on GitHub this year!', daysAgo: 10 },
+  {
+    username: 'bob',
+    content: 'Just hit 1000 contributions on GitHub this year!',
+    daysAgo: 2,
+    imageUrl: '/seed-assets/laptop.jpg',
+  },
   {
     username: 'carol',
     content: 'Design systems are only as good as their adoption. Make it easy to use!',
@@ -148,6 +169,7 @@ const TWEETS: TweetSeed[] = [
     username: 'dave',
     content: 'Just shipped a PR that refactored 2000 lines of legacy code. Feeling great!',
     daysAgo: 0,
+    imageUrl: '/seed-assets/mountain.jpg',
   },
   {
     username: 'dave',
@@ -165,7 +187,12 @@ const TWEETS: TweetSeed[] = [
     content: 'The best time to start a blog was yesterday. The second best time is now.',
     daysAgo: 6,
   },
-  { username: 'eve', content: 'Just hit publish on my latest article. Link in bio!', daysAgo: 14 },
+  {
+    username: 'eve',
+    content: 'Just hit publish on my latest article. Link in bio!',
+    daysAgo: 3,
+    imageUrl: '/seed-assets/cat.jpg',
+  },
   {
     username: 'frank',
     content: 'Training a new ML model on tweet sentiment analysis. Data is fascinating!',
@@ -196,6 +223,7 @@ const TWEETS: TweetSeed[] = [
     username: 'hank',
     content: 'Just migrated a production database with zero downtime. AMA!',
     daysAgo: 0,
+    imageUrl: '/seed-assets/mountain.jpg',
   },
   {
     username: 'hank',
@@ -207,7 +235,12 @@ const TWEETS: TweetSeed[] = [
     content: 'Kubernetes is not the answer to every problem -- but it is to many.',
     daysAgo: 20,
   },
-  { username: 'iris', content: 'CSS Grid changed my life. No more Bootstrap grids!', daysAgo: 3 },
+  {
+    username: 'iris',
+    content: 'CSS Grid changed my life. No more Bootstrap grids!',
+    daysAgo: 3,
+    imageUrl: '/seed-assets/city.jpg',
+  },
   {
     username: 'iris',
     content: 'Just discovered container queries. This is huge for component design!',
@@ -346,6 +379,7 @@ async function main(): Promise<void> {
       data: {
         content: tweetData.content,
         authorId,
+        imageUrl: tweetData.imageUrl ?? null,
         createdAt: new Date(Date.now() - tweetData.daysAgo * 24 * 60 * 60 * 1000),
       },
     });
@@ -378,6 +412,7 @@ async function main(): Promise<void> {
   console.log(`  Follows:   ${FOLLOWS.length}`);
   console.log(`  Likes:     ${LIKES.length}`);
   console.log(`  Demo ID:   ${demoUserId}`);
+  console.log(`  Images:    ${TWEETS.filter((t) => t.imageUrl).length}`);
   console.log('---');
   console.log('Demo login:');
   console.log('  Email:    demo@example.com');
