@@ -1,17 +1,26 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { AuthContext } from '../../features/auth/context/AuthContext.js';
 import type { AuthContextType } from '../../features/auth/context/AuthContext.js';
 import ProtectedRoute from '../../shared/components/ProtectedRoute.js';
 import Layout from '../../shared/components/Layout.js';
 import TimelinePage from '../../features/timeline/pages/TimelinePage.js';
-import PlaceholderPage from '../../shared/components/PlaceholderPage.js';
+import SearchPage from '../../features/user-search/pages/SearchPage.js';
+import ProfilePage from '../../features/user-profile/pages/ProfilePage.js';
 
 vi.mock('../../features/timeline/api/timelineApi.js', () => ({
   fetchTimeline: vi
     .fn()
     .mockResolvedValue({ data: [], pagination: { page: 1, limit: 20, total: 0 } }),
+}));
+
+const { mockFetchProfile } = vi.hoisted(() => ({
+  mockFetchProfile: vi.fn(),
+}));
+
+vi.mock('../../features/user-profile/api/userProfileApi.js', () => ({
+  fetchProfile: mockFetchProfile,
 }));
 
 function createMockAuth(overrides: Partial<AuthContextType>): AuthContextType {
@@ -37,8 +46,8 @@ function renderApp(initialEntries: string[], authValue: AuthContextType) {
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<TimelinePage />} />
-              <Route path="/search" element={<PlaceholderPage title="Search" />} />
-              <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>
         </Routes>
@@ -48,6 +57,9 @@ function renderApp(initialEntries: string[], authValue: AuthContextType) {
 }
 
 describe('router integration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
   it('should render Timeline route with Layout shell when authenticated', async () => {
     renderApp(['/'], createMockAuth({}));
 
@@ -61,15 +73,25 @@ describe('router integration', () => {
 
     expect(screen.getByText('alice')).toBeDefined();
     expect(screen.getByRole('button', { name: 'Log out' })).toBeDefined();
-    expect(screen.getByRole('heading', { name: 'Search' })).toBeDefined();
+    expect(screen.getByText('Search Users')).toBeDefined();
   });
 
-  it('should render Profile route with Layout shell when authenticated', () => {
+  it('should render Profile route with Layout shell when authenticated', async () => {
+    mockFetchProfile.mockResolvedValue({
+      id: '1',
+      username: 'alice',
+      createdAt: '2025-01-01T00:00:00.000Z',
+      tweetsCount: 42,
+      followersCount: 100,
+      followingCount: 7,
+    });
+
     renderApp(['/profile'], createMockAuth({}));
 
-    expect(screen.getByText('alice')).toBeDefined();
     expect(screen.getByRole('button', { name: 'Log out' })).toBeDefined();
-    expect(screen.getByRole('heading', { name: 'Profile' })).toBeDefined();
+    await waitFor(() => {
+      expect(screen.getByText('Followers')).toBeDefined();
+    });
   });
 
   it('should redirect to login when not authenticated', () => {
