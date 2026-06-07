@@ -25,6 +25,7 @@ export const router = createBrowserRouter([
           { path: '/', element: <TimelinePage /> },
           { path: '/search', element: <SearchPage /> },
           { path: '/profile', element: <ProfilePage /> },
+          { path: '/profile/:userId', element: <ProfilePage /> },
         ],
       },
     ],

@@ -23,6 +23,11 @@ vi.mock('../../features/user-profile/api/userProfileApi.js', () => ({
   fetchProfile: mockFetchProfile,
 }));
 
+vi.mock('../../features/follows/api/followsApi.js', () => ({
+  followUser: vi.fn(),
+  unfollowUser: vi.fn(),
+}));
+
 function createMockAuth(overrides: Partial<AuthContextType>): AuthContextType {
   return {
     user: { id: '1', email: 'alice@example.com', username: 'alice', bio: null, avatarUrl: null },
@@ -84,6 +89,7 @@ describe('router integration', () => {
       tweetsCount: 42,
       followersCount: 100,
       followingCount: 7,
+      isFollowedByCurrentUser: false,
     });
 
     renderApp(['/profile'], createMockAuth({}));

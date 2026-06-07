@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import request from 'supertest';
 import type { Application } from 'express';
 import { Prisma } from '@prisma/client';
+import { setupTestApp, registerUser } from '../../../shared/test-utils/auth.js';
 
 vi.mock('bcrypt', () => ({
   default: {
@@ -29,10 +30,7 @@ let app: Application;
 let authToken: string;
 
 beforeAll(async () => {
-  process.env.JWT_SECRET = 'test-secret-that-is-long-enough-32chars';
-  process.env.FRONTEND_URL = 'http://localhost:5173';
-  const { createApp } = await import('../../../app/app.js');
-  app = createApp();
+  app = await setupTestApp();
 });
 
 beforeEach(() => {
@@ -46,11 +44,7 @@ async function registerAndGetToken(): Promise<string> {
     username: 'testuser',
   });
 
-  const res = await request(app)
-    .post('/api/auth/register')
-    .send({ email: 'test@example.com', username: 'testuser', password: 'password123' });
-
-  return (res.body as { data: { token: string } }).data.token;
+  return registerUser(app);
 }
 
 describe('POST /api/users/:userId/follow', () => {

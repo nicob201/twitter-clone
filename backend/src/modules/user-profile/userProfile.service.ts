@@ -1,8 +1,12 @@
 import { getPrisma } from '../../shared/db/prisma.js';
 import { AppError } from '../../shared/errors/index.js';
+import { isFollowing } from '../follows/follows.service.js';
 import type { UserProfileResponse } from './userProfile.types.js';
 
-export async function getProfile(userId: string): Promise<UserProfileResponse> {
+export async function getProfile(
+  userId: string,
+  currentUserId: string,
+): Promise<UserProfileResponse> {
   const prisma = getPrisma();
 
   const user = await prisma.user.findUnique({
@@ -25,6 +29,8 @@ export async function getProfile(userId: string): Promise<UserProfileResponse> {
     throw new AppError('User not found', 404);
   }
 
+  const isFollowedByCurrentUser = await isFollowing(currentUserId, userId);
+
   return {
     id: user.id,
     username: user.username,
@@ -32,5 +38,6 @@ export async function getProfile(userId: string): Promise<UserProfileResponse> {
     tweetsCount: user._count.tweets,
     followersCount: user._count.followers,
     followingCount: user._count.following,
+    isFollowedByCurrentUser,
   };
 }

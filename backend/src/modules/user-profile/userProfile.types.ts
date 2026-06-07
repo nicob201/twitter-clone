@@ -5,4 +5,5 @@ export interface UserProfileResponse {
   tweetsCount: number;
   followersCount: number;
   followingCount: number;
+  isFollowedByCurrentUser: boolean;
 }

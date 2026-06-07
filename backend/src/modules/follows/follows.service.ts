@@ -2,8 +2,31 @@ import { Prisma } from '@prisma/client';
 import { getPrisma } from '../../shared/db/prisma.js';
 import { AppError } from '../../shared/errors/index.js';
 
+function isSelfFollow(followerId: string, followingId: string): boolean {
+  return followerId === followingId;
+}
+
+export async function isFollowing(followerId: string, followingId: string): Promise<boolean> {
+  if (isSelfFollow(followerId, followingId)) {
+    return false;
+  }
+
+  const prisma = getPrisma();
+
+  const follow = await prisma.follow.findUnique({
+    where: {
+      followerId_followingId: {
+        followerId,
+        followingId,
+      },
+    },
+  });
+
+  return !!follow;
+}
+
 export async function followUser(followerId: string, followingId: string): Promise<void> {
-  if (followerId === followingId) {
+  if (isSelfFollow(followerId, followingId)) {
     throw new AppError('Cannot follow yourself', 400);
   }
 
