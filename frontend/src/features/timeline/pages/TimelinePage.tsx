@@ -46,19 +46,25 @@ function TimelinePage() {
 
   return (
     <div>
-      <h1 className="border-b border-gray-200 p-4 text-xl font-bold">Timeline</h1>
+      <h1 className="border-b border-gray-100 px-4 py-3 text-lg font-bold">Timeline</h1>
       <CreateTweetForm
         onSuccess={() => {
           refresh();
         }}
       />
       {likeError && (
-        <div className="p-2 text-center text-sm text-red-500" data-testid="like-error">
+        <div
+          className="border-b border-gray-100 px-4 py-2 text-center text-sm text-red-500"
+          data-testid="like-error"
+        >
           {likeError}
         </div>
       )}
       {deleteError && (
-        <div className="p-2 text-center text-sm text-red-500" data-testid="delete-error">
+        <div
+          className="border-b border-gray-100 px-4 py-2 text-center text-sm text-red-500"
+          data-testid="delete-error"
+        >
           {deleteError}
         </div>
       )}
