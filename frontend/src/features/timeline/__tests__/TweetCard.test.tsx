@@ -10,6 +10,7 @@ const mockTweet: TimelineTweet = {
   author: { id: 'user-1', username: 'alice' },
   likesCount: 5,
   likedByCurrentUser: false,
+  imageUrl: null,
 };
 
 describe('TweetCard', () => {
@@ -81,5 +82,26 @@ describe('TweetCard', () => {
 
     const button = screen.getByRole('button');
     expect(button.innerHTML).toContain('\u2661');
+  });
+
+  describe('image rendering', () => {
+    it('should render an image when imageUrl is provided', () => {
+      const tweetWithImage: TimelineTweet = {
+        ...mockTweet,
+        imageUrl: '/uploads/test.png',
+      };
+
+      render(<TweetCard tweet={tweetWithImage} />);
+
+      const img = screen.getByAltText('Tweet image');
+      expect(img).toBeDefined();
+      expect(img.getAttribute('src')).toBe('http://localhost:3000/uploads/test.png');
+    });
+
+    it('should not render an image when imageUrl is null', () => {
+      render(<TweetCard tweet={mockTweet} />);
+
+      expect(screen.queryByAltText('Tweet image')).toBeNull();
+    });
   });
 });

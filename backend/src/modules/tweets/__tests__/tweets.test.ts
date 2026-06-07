@@ -16,6 +16,7 @@ interface ApiResponse<T> {
 interface TweetData {
   id: string;
   content: string;
+  imageUrl: string | null;
   authorId: string;
   createdAt: string;
 }
@@ -89,6 +90,7 @@ describe('POST /api/tweets', () => {
         id: 'tweet-1',
         content: 'Hello world',
         authorId: 'user-1',
+        imageUrl: null,
         createdAt: now,
       });
 
@@ -106,6 +108,7 @@ describe('POST /api/tweets', () => {
       if (!body.data) return;
 
       expect(body.data.content).toBe('Hello world');
+      expect(body.data.imageUrl).toBeNull();
       expect(body.data.authorId).toBe('user-1');
       expect(body.data.id).toBeDefined();
       expect(body.data.createdAt).toBeDefined();
@@ -125,6 +128,28 @@ describe('POST /api/tweets', () => {
         .post('/api/tweets')
         .set('Authorization', `Bearer ${authToken}`)
         .send({ content: 'a'.repeat(281) });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('should reject unsupported file type', async () => {
+      const res = await request(app)
+        .post('/api/tweets')
+        .set('Authorization', `Bearer ${authToken}`)
+        .field('content', 'Hello with image')
+        .attach('image', Buffer.from('fake-gif-data'), 'image.gif');
+
+      expect(res.status).toBe(400);
+    });
+
+    it('should reject oversized image', async () => {
+      const largeBuf = Buffer.alloc(6 * 1024 * 1024);
+
+      const res = await request(app)
+        .post('/api/tweets')
+        .set('Authorization', `Bearer ${authToken}`)
+        .field('content', 'Hello with large image')
+        .attach('image', largeBuf, 'image.jpg');
 
       expect(res.status).toBe(400);
     });

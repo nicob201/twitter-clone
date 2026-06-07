@@ -13,15 +13,178 @@ vi.mock('../api/createTweetApi.js', () => ({
 
 const mockOnSuccess = vi.fn();
 
+class MockFileReader {
+  onloadend: (() => void) | null = null;
+  result: string | null = null;
+
+  readAsDataURL(_file: File) {
+    this.result = 'data:image/png;base64,fake-preview-content';
+    if (this.onloadend) {
+      this.onloadend();
+    }
+  }
+}
+
 function renderForm() {
   return render(<CreateTweetForm onSuccess={mockOnSuccess} />);
+}
+
+function createMockImage(): File {
+  return new File(['fake-image'], 'test.png', { type: 'image/png' });
+}
+
+function selectImage(file: File): void {
+  const input = document.getElementById('image-upload') as HTMLInputElement;
+  fireEvent.change(input, { target: { files: [file] } });
+}
+
+function typeContent(text: string): void {
+  fireEvent.change(screen.getByPlaceholderText('What is happening?'), {
+    target: { value: text },
+  });
+}
+
+function clickTweet(): void {
+  fireEvent.click(screen.getByRole('button', { name: 'Tweet' }));
 }
 
 describe('CreateTweetForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal('FileReader', MockFileReader);
   });
 
+  describe('image selection', () => {
+    it('should show a preview after selecting an image', async () => {
+      renderForm();
+
+      selectImage(createMockImage());
+
+      await waitFor(() => {
+        expect(screen.getByAltText('Preview')).toBeDefined();
+      });
+
+      const img = screen.getByAltText('Preview');
+      expect(img.getAttribute('src')).toBe('data:image/png;base64,fake-preview-content');
+    });
+
+    it('should remove the preview when the remove button is clicked', async () => {
+      renderForm();
+
+      selectImage(createMockImage());
+
+      await waitFor(() => {
+        expect(screen.getByAltText('Preview')).toBeDefined();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: '×' }));
+
+      expect(screen.queryByAltText('Preview')).toBeNull();
+    });
+  });
+
+  describe('submit with image', () => {
+    it('should call createTweet with content and image on submit', async () => {
+      mockCreateTweet.mockResolvedValue({
+        id: '1',
+        content: 'Photo tweet',
+        imageUrl: '/uploads/fake.jpg',
+        authorId: 'user-1',
+        createdAt: new Date().toISOString(),
+      });
+
+      renderForm();
+
+      typeContent('Photo tweet');
+      const file = createMockImage();
+      selectImage(file);
+
+      clickTweet();
+
+      await waitFor(() => {
+        expect(mockCreateTweet).toHaveBeenCalledWith({
+          content: 'Photo tweet',
+          image: file,
+        });
+      });
+    });
+
+    it('should clear content and preview on successful submit with image', async () => {
+      mockCreateTweet.mockResolvedValue({
+        id: '1',
+        content: 'Photo tweet',
+        imageUrl: '/uploads/fake.jpg',
+        authorId: 'user-1',
+        createdAt: new Date().toISOString(),
+      });
+
+      renderForm();
+
+      typeContent('Photo tweet');
+      selectImage(createMockImage());
+
+      clickTweet();
+
+      await waitFor(() => {
+        expect(mockCreateTweet).toHaveBeenCalled();
+      });
+
+      const textarea = screen.getByPlaceholderText<HTMLTextAreaElement>('What is happening?');
+      expect(textarea.value).toBe('');
+      expect(screen.queryByAltText('Preview')).toBeNull();
+      expect(mockOnSuccess).toHaveBeenCalledOnce();
+    });
+
+    it('should fail when file type is not accepted', () => {
+      renderForm();
+
+      const input = document.getElementById('image-upload') as HTMLInputElement;
+      expect(input).toHaveProperty('accept', 'image/jpeg,image/png,image/webp');
+    });
+  });
+
+  describe('submit without image', () => {
+    it('should call createTweet with only content', async () => {
+      mockCreateTweet.mockResolvedValue({
+        id: '1',
+        content: 'Text only',
+        authorId: 'user-1',
+        createdAt: new Date().toISOString(),
+      });
+
+      renderForm();
+
+      typeContent('Text only');
+      clickTweet();
+
+      await waitFor(() => {
+        expect(mockCreateTweet).toHaveBeenCalledWith({ content: 'Text only' });
+      });
+    });
+
+    it('should clear the content after successful submission', async () => {
+      mockCreateTweet.mockResolvedValue({
+        id: '1',
+        content: 'Text only',
+        authorId: 'user-1',
+        createdAt: new Date().toISOString(),
+      });
+
+      renderForm();
+
+      typeContent('Text only');
+      clickTweet();
+
+      await waitFor(() => {
+        expect(mockCreateTweet).toHaveBeenCalled();
+      });
+
+      const textarea = screen.getByPlaceholderText<HTMLTextAreaElement>('What is happening?');
+      expect(textarea.value).toBe('');
+    });
+  });
+
+  // existing tests remain below
   it('should create a tweet and clear the form on success', async () => {
     mockCreateTweet.mockResolvedValue({
       id: '1',

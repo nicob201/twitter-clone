@@ -27,6 +27,7 @@ export async function getTimeline(
     select: {
       id: true,
       content: true,
+      imageUrl: true,
       createdAt: true,
       author: {
         select: {
@@ -55,6 +56,7 @@ export async function getTimeline(
   const data: TimelineTweet[] = tweets.map((t) => ({
     id: t.id,
     content: t.content,
+    imageUrl: t.imageUrl,
     createdAt: t.createdAt,
     author: t.author,
     likesCount: t._count.likes,

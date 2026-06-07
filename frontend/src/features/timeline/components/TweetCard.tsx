@@ -1,4 +1,5 @@
 import type { TimelineTweet } from '../types/timeline.types.js';
+import { API_URL } from '../../../shared/api/client.js';
 
 interface TweetCardProps {
   tweet: TimelineTweet;
@@ -18,6 +19,13 @@ function TweetCard({ tweet, disabled, onToggleLike }: TweetCardProps) {
         </span>
       </div>
       <p className="mt-1 text-gray-900">{tweet.content}</p>
+      {tweet.imageUrl && (
+        <img
+          src={`${API_URL}${tweet.imageUrl}`}
+          alt="Tweet image"
+          className="mt-2 max-h-64 w-full rounded object-contain border border-gray-100"
+        />
+      )}
       <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
         <button
           type="button"

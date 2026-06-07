@@ -7,6 +7,16 @@ interface ApiEnvelope<T> {
 }
 
 export async function createTweet(input: CreateTweetInput): Promise<CreateTweetResponse> {
-  const res = await apiClient.post<ApiEnvelope<CreateTweetResponse>>('/tweets', input);
+  if (input.image) {
+    const formData = new FormData();
+    formData.append('content', input.content);
+    formData.append('image', input.image);
+    const res = await apiClient.post<ApiEnvelope<CreateTweetResponse>>('/tweets', formData);
+    return res.data.data;
+  }
+
+  const res = await apiClient.post<ApiEnvelope<CreateTweetResponse>>('/tweets', {
+    content: input.content,
+  });
   return res.data.data;
 }

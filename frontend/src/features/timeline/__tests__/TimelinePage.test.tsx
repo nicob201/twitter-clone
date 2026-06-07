@@ -38,6 +38,7 @@ const mockTweets: TimelineTweet[] = [
     author: { id: 'user-1', username: 'alice' },
     likesCount: 3,
     likedByCurrentUser: false,
+    imageUrl: null,
   },
   {
     id: '2',
@@ -46,6 +47,7 @@ const mockTweets: TimelineTweet[] = [
     author: { id: 'user-2', username: 'bob' },
     likesCount: 7,
     likedByCurrentUser: true,
+    imageUrl: null,
   },
 ];
 
@@ -287,6 +289,7 @@ describe('TimelinePage', () => {
         author: { id: 'user-1', username: 'alice' },
         likesCount: 1,
         likedByCurrentUser: false,
+        imageUrl: null,
       },
     ];
 

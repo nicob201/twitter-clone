@@ -1,6 +1,7 @@
 export interface TimelineTweet {
   id: string;
   content: string;
+  imageUrl: string | null;
   createdAt: Date;
   author: {
     id: string;

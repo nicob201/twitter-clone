@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { createTweet } from '../api/createTweetApi.js';
 
 interface UseCreateTweetResult {
-  submit: (content: string) => Promise<boolean>;
+  submit: (content: string, image?: File) => Promise<boolean>;
   isLoading: boolean;
   error: string | null;
 }
@@ -12,12 +12,12 @@ export function useCreateTweet(onSuccess?: () => void): UseCreateTweetResult {
   const [error, setError] = useState<string | null>(null);
 
   const submit = useCallback(
-    async (content: string): Promise<boolean> => {
+    async (content: string, image?: File): Promise<boolean> => {
       setIsLoading(true);
       setError(null);
 
       try {
-        await createTweet({ content });
+        await createTweet({ content, image });
         onSuccess?.();
         return true;
       } catch (err: unknown) {

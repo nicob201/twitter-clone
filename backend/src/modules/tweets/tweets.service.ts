@@ -6,6 +6,7 @@ import type { CreateTweetInput } from './tweets.schemas.js';
 export async function createTweet(
   input: CreateTweetInput,
   authorId: string,
+  imageUrl: string | null,
 ): Promise<TweetResponse> {
   const prisma = getPrisma();
 
@@ -13,10 +14,12 @@ export async function createTweet(
     data: {
       content: input.content,
       authorId,
+      imageUrl,
     },
     select: {
       id: true,
       content: true,
+      imageUrl: true,
       authorId: true,
       createdAt: true,
     },

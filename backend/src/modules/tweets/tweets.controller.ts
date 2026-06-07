@@ -8,7 +8,9 @@ export async function create(req: Request, res: Response, next: NextFunction): P
   try {
     const authReq = req as AuthenticatedRequest;
     const input = createTweetSchema.parse(req.body);
-    const tweet = await tweetsService.createTweet(input, authReq.userId);
+    const file = req.file;
+    const imageUrl = file ? '/uploads/' + file.filename : null;
+    const tweet = await tweetsService.createTweet(input, authReq.userId, imageUrl);
     res.status(201).json(successResponse(tweet));
   } catch (error) {
     next(error);
