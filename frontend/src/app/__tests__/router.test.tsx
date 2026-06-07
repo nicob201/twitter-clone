@@ -5,8 +5,14 @@ import { AuthContext } from '../../features/auth/context/AuthContext.js';
 import type { AuthContextType } from '../../features/auth/context/AuthContext.js';
 import ProtectedRoute from '../../shared/components/ProtectedRoute.js';
 import Layout from '../../shared/components/Layout.js';
-import Home from '../../pages/Home.js';
+import TimelinePage from '../../features/timeline/pages/TimelinePage.js';
 import PlaceholderPage from '../../shared/components/PlaceholderPage.js';
+
+vi.mock('../../features/timeline/api/timelineApi.js', () => ({
+  fetchTimeline: vi
+    .fn()
+    .mockResolvedValue({ data: [], pagination: { page: 1, limit: 20, total: 0 } }),
+}));
 
 function createMockAuth(overrides: Partial<AuthContextType>): AuthContextType {
   return {
@@ -30,7 +36,7 @@ function renderApp(initialEntries: string[], authValue: AuthContextType) {
           <Route path="/register" element={<div>Register page</div>} />
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<TimelinePage />} />
               <Route path="/search" element={<PlaceholderPage title="Search" />} />
               <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
             </Route>
@@ -42,12 +48,12 @@ function renderApp(initialEntries: string[], authValue: AuthContextType) {
 }
 
 describe('router integration', () => {
-  it('should render Home route with Layout shell when authenticated', () => {
+  it('should render Timeline route with Layout shell when authenticated', async () => {
     renderApp(['/'], createMockAuth({}));
 
     expect(screen.getByText('alice')).toBeDefined();
     expect(screen.getByRole('button', { name: 'Log out' })).toBeDefined();
-    expect(screen.getByRole('heading', { name: 'Home' })).toBeDefined();
+    expect(await screen.findByText('Timeline')).toBeDefined();
   });
 
   it('should render Search route with Layout shell when authenticated', () => {
@@ -70,7 +76,7 @@ describe('router integration', () => {
     renderApp(['/'], createMockAuth({ isAuthenticated: false, user: null, token: null }));
 
     expect(screen.getByText('Login page')).toBeDefined();
-    expect(screen.queryByRole('heading', { name: 'Home' })).toBeNull();
+    expect(screen.queryByText('Timeline')).toBeNull();
   });
 
   it('should render login page at /login', () => {
