@@ -9,10 +9,10 @@ function Layout() {
       <Header />
       <div className="mx-auto flex max-w-6xl">
         <Sidebar />
-        <main className="min-h-screen flex-1 border-x border-gray-200 bg-white pb-16 lg:pb-0">
+        <main className="min-h-screen flex-1 border-x border-gray-100 bg-white pb-16 lg:pb-0">
           <Outlet />
         </main>
-        <aside className="hidden border-r border-gray-200 bg-white lg:block lg:w-80">
+        <aside className="hidden border-r border-gray-100 bg-white lg:block lg:w-80">
           <div className="sticky top-0 p-4">
             <div className="rounded-lg bg-gray-100 p-4">
               <p className="text-sm text-gray-500">Right panel placeholder</p>

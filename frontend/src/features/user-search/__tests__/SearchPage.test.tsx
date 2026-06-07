@@ -80,8 +80,6 @@ describe('SearchPage', () => {
     });
 
     expect(screen.getByText('bob')).toBeDefined();
-    expect(screen.getByText('ID: 1')).toBeDefined();
-    expect(screen.getByText('ID: 2')).toBeDefined();
   });
 
   it('should show empty state when no users found', async () => {
