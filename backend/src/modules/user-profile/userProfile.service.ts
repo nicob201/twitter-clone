@@ -9,8 +9,10 @@ export async function getProfile(
 ): Promise<UserProfileResponse> {
   const prisma = getPrisma();
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [{ id: userId }, { username: userId }],
+    },
     select: {
       id: true,
       username: true,

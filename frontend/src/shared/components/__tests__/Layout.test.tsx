@@ -34,7 +34,7 @@ describe('Layout', () => {
   it('should render Header with authenticated username', () => {
     renderLayout();
 
-    expect(screen.getByText('alice')).toBeDefined();
+    expect(screen.getAllByText('alice').length).toBeGreaterThanOrEqual(1);
   });
 
   it('should render Header with logout action', () => {

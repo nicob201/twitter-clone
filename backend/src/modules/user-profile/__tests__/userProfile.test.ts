@@ -23,7 +23,7 @@ interface UserProfileData {
 
 const mockDb = {
   user: {
-    findUnique: vi.fn(),
+    findFirst: vi.fn(),
     create: vi.fn(),
   },
   follow: {
@@ -63,7 +63,7 @@ beforeEach(async () => {
 
 describe('GET /api/users/:userId', () => {
   it('should return user profile with all counts and follow state', async () => {
-    mockDb.user.findUnique.mockResolvedValue({
+    mockDb.user.findFirst.mockResolvedValue({
       id: 'user-1',
       username: 'testuser',
       createdAt: new Date('2025-01-01'),
@@ -103,7 +103,7 @@ describe('GET /api/users/:userId', () => {
   });
 
   it('should return isFollowedByCurrentUser as false when not following', async () => {
-    mockDb.user.findUnique.mockResolvedValue({
+    mockDb.user.findFirst.mockResolvedValue({
       id: 'user-2',
       username: 'otheruser',
       createdAt: new Date('2025-01-01'),
@@ -122,7 +122,7 @@ describe('GET /api/users/:userId', () => {
   });
 
   it('should return isFollowedByCurrentUser as false for own profile', async () => {
-    mockDb.user.findUnique.mockResolvedValue({
+    mockDb.user.findFirst.mockResolvedValue({
       id: 'current-user',
       username: 'authuser',
       createdAt: new Date('2025-01-01'),
@@ -141,7 +141,7 @@ describe('GET /api/users/:userId', () => {
   });
 
   it('should return 404 for missing user', async () => {
-    mockDb.user.findUnique.mockResolvedValue(null);
+    mockDb.user.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .get('/api/users/nonexistent')
@@ -160,7 +160,7 @@ describe('GET /api/users/:userId', () => {
   });
 
   it('should handle follow lookup failure gracefully', async () => {
-    mockDb.user.findUnique.mockResolvedValue({
+    mockDb.user.findFirst.mockResolvedValue({
       id: 'user-1',
       username: 'testuser',
       createdAt: new Date('2025-01-01'),
@@ -177,7 +177,7 @@ describe('GET /api/users/:userId', () => {
 
   it('should accept userId at maximum length (36 characters)', async () => {
     const maxId = 'a'.repeat(36);
-    mockDb.user.findUnique.mockResolvedValue({
+    mockDb.user.findFirst.mockResolvedValue({
       id: maxId,
       username: 'maxlen',
       createdAt: new Date('2025-01-01'),
@@ -194,7 +194,7 @@ describe('GET /api/users/:userId', () => {
 
   it('should accept userId one character below maximum (35 characters)', async () => {
     const nearMaxId = 'a'.repeat(35);
-    mockDb.user.findUnique.mockResolvedValue({
+    mockDb.user.findFirst.mockResolvedValue({
       id: nearMaxId,
       username: 'nearmax',
       createdAt: new Date('2025-01-01'),

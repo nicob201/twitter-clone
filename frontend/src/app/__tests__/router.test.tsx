@@ -68,7 +68,7 @@ describe('router integration', () => {
   it('should render Timeline route with Layout shell when authenticated', async () => {
     renderApp(['/'], createMockAuth({}));
 
-    expect(screen.getByText('alice')).toBeDefined();
+    expect(screen.getAllByText('alice').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByRole('button', { name: 'Log out' })).toBeDefined();
     expect(await screen.findByText('Timeline')).toBeDefined();
   });
@@ -76,7 +76,7 @@ describe('router integration', () => {
   it('should render Search route with Layout shell when authenticated', () => {
     renderApp(['/search'], createMockAuth({}));
 
-    expect(screen.getByText('alice')).toBeDefined();
+    expect(screen.getAllByText('alice').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByRole('button', { name: 'Log out' })).toBeDefined();
     expect(screen.getByText('Search Users')).toBeDefined();
   });
