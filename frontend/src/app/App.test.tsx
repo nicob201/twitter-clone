@@ -1,9 +1,23 @@
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import App from './App';
 
-describe('App', () => {
-  it('should render the home page', () => {
+vi.mock('../features/auth/api/authApi.js', () => ({
+  fetchCurrentUser: vi.fn(),
+  loginUser: vi.fn(),
+  registerUser: vi.fn(),
+}));
+
+beforeEach(() => {
+  localStorage.clear();
+});
+
+describe('App routing', () => {
+  it('should redirect unauthenticated user to login', async () => {
     render(<App />);
-    expect(screen.getByText('Home')).toBeDefined();
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Log in' })).toBeDefined();
+    });
   });
 });
