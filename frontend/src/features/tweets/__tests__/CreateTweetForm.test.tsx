@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
+import { AuthContext } from '../../auth/context/AuthContext.js';
 import CreateTweetForm from '../components/CreateTweetForm.js';
 
 const { mockCreateTweet } = vi.hoisted(() => ({
@@ -10,6 +11,22 @@ const { mockCreateTweet } = vi.hoisted(() => ({
 vi.mock('../api/createTweetApi.js', () => ({
   createTweet: mockCreateTweet,
 }));
+
+const mockAuthValue = {
+  user: {
+    id: 'test-user-id',
+    email: 'test@test.com',
+    username: 'testuser',
+    bio: null,
+    avatarUrl: null,
+  },
+  token: 'token',
+  isAuthenticated: true,
+  isLoading: false,
+  login: vi.fn(),
+  register: vi.fn(),
+  logout: vi.fn(),
+};
 
 const mockOnSuccess = vi.fn();
 
@@ -26,7 +43,11 @@ class MockFileReader {
 }
 
 function renderForm() {
-  return render(<CreateTweetForm onSuccess={mockOnSuccess} />);
+  return render(
+    <AuthContext.Provider value={mockAuthValue}>
+      <CreateTweetForm onSuccess={mockOnSuccess} />
+    </AuthContext.Provider>,
+  );
 }
 
 function createMockImage(): File {

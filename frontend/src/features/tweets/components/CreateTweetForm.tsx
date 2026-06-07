@@ -1,4 +1,6 @@
 import { useState, type FormEvent, useRef } from 'react';
+import { useAuth } from '../../auth/hooks/useAuth.js';
+import Avatar from '../../user-profile/components/Avatar.js';
 import { useCreateTweet } from '../hooks/useCreateTweet.js';
 
 const MAX_CONTENT_LENGTH = 280;
@@ -9,6 +11,7 @@ interface CreateTweetFormProps {
 }
 
 function CreateTweetForm({ onSuccess }: CreateTweetFormProps) {
+  const { user } = useAuth();
   const [content, setContent] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -77,9 +80,7 @@ function CreateTweetForm({ onSuccess }: CreateTweetFormProps) {
       className="border-b border-gray-100 px-4 py-3"
     >
       <div className="flex gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
-          ?
-        </div>
+        <Avatar avatarUrl={user?.avatarUrl ?? null} username={user?.username ?? '?'} size="md" />
         <div className="min-w-0 flex-1">
           <textarea
             value={content}
