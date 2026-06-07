@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchTimeline } from '../api/timelineApi.js';
 import type { TimelineTweet } from '../types/timeline.types.js';
 
@@ -6,23 +6,29 @@ interface UseTimelineResult {
   tweets: TimelineTweet[];
   isLoading: boolean;
   error: string | null;
+  refresh: () => void;
 }
 
 export function useTimeline(page: number, limit: number): UseTimelineResult {
   const [tweets, setTweets] = useState<TimelineTweet[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+  const hasLoadedOnce = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
 
-    setIsLoading(true);
+    if (!hasLoadedOnce.current) {
+      setIsLoading(true);
+    }
     setError(null);
 
     fetchTimeline(page, limit)
       .then((result) => {
         if (!cancelled) {
           setTweets(result.data);
+          hasLoadedOnce.current = true;
           setIsLoading(false);
         }
       })
@@ -34,6 +40,7 @@ export function useTimeline(page: number, limit: number): UseTimelineResult {
                 'Failed to load timeline')
               : 'Failed to load timeline';
           setError(message);
+          hasLoadedOnce.current = true;
           setIsLoading(false);
         }
       });
@@ -41,7 +48,11 @@ export function useTimeline(page: number, limit: number): UseTimelineResult {
     return () => {
       cancelled = true;
     };
-  }, [page, limit]);
+  }, [page, limit, refreshCounter]);
 
-  return { tweets, isLoading, error };
+  const refresh = useCallback(() => {
+    setRefreshCounter((c) => c + 1);
+  }, []);
+
+  return { tweets, isLoading, error, refresh };
 }

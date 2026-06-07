@@ -1,8 +1,9 @@
 import { useTimeline } from '../hooks/useTimeline.js';
 import TimelineList from '../components/TimelineList.js';
+import CreateTweetForm from '../../tweets/components/CreateTweetForm.js';
 
 function TimelinePage() {
-  const { tweets, isLoading, error } = useTimeline(1, 20);
+  const { tweets, isLoading, error, refresh } = useTimeline(1, 20);
 
   if (isLoading) {
     return (
@@ -23,6 +24,11 @@ function TimelinePage() {
   return (
     <div>
       <h1 className="border-b border-gray-200 p-4 text-xl font-bold">Timeline</h1>
+      <CreateTweetForm
+        onSuccess={() => {
+          refresh();
+        }}
+      />
       <TimelineList tweets={tweets} />
     </div>
   );
