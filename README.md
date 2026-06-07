@@ -342,8 +342,8 @@ This project was developed using a structured AI-assisted workflow where multipl
 | -------- | ----------------- | ----------------------------------- |
 | OpenCode | DeepSeek V4 Flash | Primary implementation              |
 | ChatGPT  | GPT-4o            | Architecture, planning, reviews     |
-| —        | Minimax M3        | Independent code audit              |
-| —        | Nemotron Ultra    | Independent security and test audit |
+| OpenCode | Minimax M3        | Independent code audit              |
+| OpenCode | Nemotron Ultra    | Independent security and test audit |
 
 ### Workflow
 
