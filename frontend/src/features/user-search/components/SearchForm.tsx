@@ -14,7 +14,7 @@ function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
+    <form onSubmit={handleSubmit} className="border-b border-gray-100 px-4 py-3">
       <div className="flex gap-2">
         <input
           type="text"
@@ -23,13 +23,13 @@ function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             setQuery(e.target.value);
           }}
           placeholder="Search users..."
-          className="flex-1 rounded border border-gray-300 px-3 py-2"
+          className="flex-1 rounded-full border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-500 focus:border-blue-500 focus:outline-none"
           disabled={isLoading}
         />
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
+          className="rounded-full bg-blue-500 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
         >
           Search
         </button>

@@ -6,8 +6,8 @@ function SearchPage() {
   const { users, isLoading, error, hasSearched, search } = useUserSearch();
 
   return (
-    <div className="p-4">
-      <h1 className="mb-4 text-xl font-bold">Search Users</h1>
+    <div>
+      <h1 className="border-b border-gray-100 px-4 py-3 text-lg font-bold">Search Users</h1>
       <SearchForm onSearch={search} isLoading={isLoading} />
       <SearchResults users={users} isLoading={isLoading} error={error} hasSearched={hasSearched} />
     </div>
