@@ -4,6 +4,7 @@ import Layout from '../shared/components/Layout.js';
 import LoginPage from '../features/auth/pages/LoginPage.js';
 import RegisterPage from '../features/auth/pages/RegisterPage.js';
 import TimelinePage from '../features/timeline/pages/TimelinePage.js';
+import SearchPage from '../features/user-search/pages/SearchPage.js';
 import PlaceholderPage from '../shared/components/PlaceholderPage.js';
 
 export const router = createBrowserRouter([
@@ -22,7 +23,7 @@ export const router = createBrowserRouter([
         element: <Layout />,
         children: [
           { path: '/', element: <TimelinePage /> },
-          { path: '/search', element: <PlaceholderPage title="Search" /> },
+          { path: '/search', element: <SearchPage /> },
           { path: '/profile', element: <PlaceholderPage title="Profile" /> },
         ],
       },
