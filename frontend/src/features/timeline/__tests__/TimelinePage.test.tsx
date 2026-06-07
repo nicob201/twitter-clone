@@ -25,9 +25,17 @@ const { mockLikeTweet, mockUnlikeTweet } = vi.hoisted(() => ({
   mockUnlikeTweet: vi.fn(),
 }));
 
+const { mockDeleteTweet } = vi.hoisted(() => ({
+  mockDeleteTweet: vi.fn(),
+}));
+
 vi.mock('../../likes/api/likesApi.js', () => ({
   likeTweet: mockLikeTweet,
   unlikeTweet: mockUnlikeTweet,
+}));
+
+vi.mock('../../tweets/api/deleteTweetApi.js', () => ({
+  deleteTweet: mockDeleteTweet,
 }));
 
 const mockTweets: TimelineTweet[] = [
@@ -52,7 +60,7 @@ const mockTweets: TimelineTweet[] = [
 ];
 
 const mockAuthValue = {
-  user: { id: '1', email: 'a@a.com', username: 'alice', bio: null, avatarUrl: null },
+  user: { id: 'user-1', email: 'a@a.com', username: 'alice', bio: null, avatarUrl: null },
   token: 'token',
   isAuthenticated: true,
   isLoading: false,
@@ -314,5 +322,101 @@ describe('TimelinePage', () => {
     });
 
     expect(screen.queryByTestId('loading-state')).toBeNull();
+  });
+
+  it('should remove tweet from UI after successful delete', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+    mockDeleteTweet.mockResolvedValue(undefined);
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('First tweet')).toBeDefined();
+    });
+
+    expect(screen.getByText('Second tweet')).toBeDefined();
+
+    fireEvent.click(screen.getByTestId('delete-tweet-button'));
+
+    await waitFor(() => {
+      expect(screen.queryByText('First tweet')).toBeNull();
+    });
+
+    expect(screen.getByText('Second tweet')).toBeDefined();
+  });
+
+  it('should show delete error when deletion fails', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+    mockDeleteTweet.mockRejectedValue(new Error('API error'));
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('First tweet')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByTestId('delete-tweet-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('delete-error')).toBeDefined();
+    });
+  });
+
+  it('should not call delete API when confirm is cancelled', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+    mockDeleteTweet.mockResolvedValue(undefined);
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('First tweet')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByTestId('delete-tweet-button'));
+
+    expect(mockDeleteTweet).not.toHaveBeenCalled();
+    expect(screen.getByText('First tweet')).toBeDefined();
+  });
+
+  it('should prevent duplicate delete requests', async () => {
+    let resolveDeferred: (v?: undefined) => void = () => {};
+    const deferred = new Promise<undefined>((resolve) => {
+      resolveDeferred = resolve;
+    });
+
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+    mockDeleteTweet.mockReturnValue(deferred);
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('First tweet')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByTestId('delete-tweet-button'));
+    fireEvent.click(screen.getByTestId('delete-tweet-button'));
+    fireEvent.click(screen.getByTestId('delete-tweet-button'));
+
+    await waitFor(() => {
+      expect(mockDeleteTweet).toHaveBeenCalledTimes(1);
+    });
+
+    resolveDeferred();
   });
 });

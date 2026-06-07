@@ -7,6 +7,7 @@ interface UseTimelineResult {
   isLoading: boolean;
   error: string | null;
   refresh: () => void;
+  removeTweet: (tweetId: string) => void;
 }
 
 export function useTimeline(page: number, limit: number): UseTimelineResult {
@@ -54,5 +55,9 @@ export function useTimeline(page: number, limit: number): UseTimelineResult {
     setRefreshCounter((c) => c + 1);
   }, []);
 
-  return { tweets, isLoading, error, refresh };
+  const removeTweet = useCallback((tweetId: string) => {
+    setTweets((prev) => prev.filter((t) => t.id !== tweetId));
+  }, []);
+
+  return { tweets, isLoading, error, refresh, removeTweet };
 }

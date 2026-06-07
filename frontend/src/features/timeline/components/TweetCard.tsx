@@ -3,12 +3,15 @@ import { API_URL } from '../../../shared/api/client.js';
 
 interface TweetCardProps {
   tweet: TimelineTweet;
+  currentUserId?: string;
   disabled?: boolean;
   onToggleLike?: (tweetId: string, liked: boolean) => void;
+  onDelete?: (tweetId: string) => void;
 }
 
-function TweetCard({ tweet, disabled, onToggleLike }: TweetCardProps) {
+function TweetCard({ tweet, currentUserId, disabled, onToggleLike, onDelete }: TweetCardProps) {
   const { likedByCurrentUser, likesCount } = tweet;
+  const isOwnTweet = currentUserId !== undefined && tweet.author.id === currentUserId;
 
   return (
     <div className="border-b border-gray-100 p-4">
@@ -17,6 +20,19 @@ function TweetCard({ tweet, disabled, onToggleLike }: TweetCardProps) {
         <span className="text-sm text-gray-500">
           {new Date(tweet.createdAt).toLocaleDateString()}
         </span>
+        {isOwnTweet && onDelete && (
+          <button
+            type="button"
+            onClick={() => {
+              onDelete(tweet.id);
+            }}
+            disabled={disabled}
+            className="ml-auto text-sm text-gray-400 hover:text-red-500 disabled:opacity-50"
+            data-testid="delete-tweet-button"
+          >
+            Delete
+          </button>
+        )}
       </div>
       <p className="mt-1 text-gray-900">{tweet.content}</p>
       {tweet.imageUrl && (
