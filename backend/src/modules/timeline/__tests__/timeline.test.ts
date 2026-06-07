@@ -14,6 +14,7 @@ interface TimelineItem {
   createdAt: string;
   author: { id: string; username: string };
   likesCount: number;
+  likedByCurrentUser: boolean;
 }
 
 interface TimelineResponseData {
@@ -32,6 +33,9 @@ const mockDb = {
   tweet: {
     findMany: vi.fn(),
     count: vi.fn(),
+  },
+  like: {
+    findMany: vi.fn(),
   },
 };
 
@@ -111,6 +115,8 @@ describe('GET /api/timeline', () => {
       },
     ]);
 
+    mockDb.like.findMany.mockResolvedValue([{ tweetId: 'tweet-2' }]);
+
     const res = await request(app).get('/api/timeline').set('Authorization', `Bearer ${authToken}`);
 
     const body = res.body as ApiResponse<TimelineResponseData>;
@@ -140,6 +146,7 @@ describe('GET /api/timeline', () => {
         _count: { likes: 0 },
       },
     ]);
+    mockDb.like.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/timeline').set('Authorization', `Bearer ${authToken}`);
 
@@ -179,6 +186,7 @@ describe('GET /api/timeline', () => {
         _count: { likes: 0 },
       },
     ]);
+    mockDb.like.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/timeline').set('Authorization', `Bearer ${authToken}`);
 
@@ -212,6 +220,7 @@ describe('GET /api/timeline', () => {
         _count: { likes: 0 },
       },
     ]);
+    mockDb.like.findMany.mockResolvedValue([]);
 
     const res = await request(app)
       .get('/api/timeline?page=2&limit=2')
@@ -234,6 +243,7 @@ describe('GET /api/timeline', () => {
     mockDb.follow.findMany.mockResolvedValue([]);
     mockDb.tweet.count.mockResolvedValue(0);
     mockDb.tweet.findMany.mockResolvedValue([]);
+    mockDb.like.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/timeline').set('Authorization', `Bearer ${authToken}`);
 
@@ -251,5 +261,127 @@ describe('GET /api/timeline', () => {
     const res = await request(app).get('/api/timeline');
 
     expect(res.status).toBe(401);
+  });
+
+  it('should set likedByCurrentUser to true when user liked the tweet', async () => {
+    mockDb.follow.findMany.mockResolvedValue([]);
+    mockDb.tweet.count.mockResolvedValue(2);
+    mockDb.tweet.findMany.mockResolvedValue([
+      {
+        id: 'tweet-1',
+        content: 'Tweet one',
+        createdAt: new Date('2025-01-02'),
+        author: { id: 'user-1', username: 'testuser' },
+        _count: { likes: 3 },
+      },
+      {
+        id: 'tweet-2',
+        content: 'Tweet two',
+        createdAt: new Date('2025-01-01'),
+        author: { id: 'user-1', username: 'testuser' },
+        _count: { likes: 1 },
+      },
+    ]);
+    mockDb.like.findMany.mockResolvedValue([{ tweetId: 'tweet-1' }]);
+
+    const res = await request(app).get('/api/timeline').set('Authorization', `Bearer ${authToken}`);
+
+    const body = res.body as ApiResponse<TimelineResponseData>;
+
+    expect(body.data).toBeDefined();
+
+    if (!body.data) return;
+
+    expect(body.data.data[0]?.likedByCurrentUser).toBe(true);
+    expect(body.data.data[1]?.likedByCurrentUser).toBe(false);
+  });
+
+  it('should set likedByCurrentUser to false when user did not like any tweets', async () => {
+    mockDb.follow.findMany.mockResolvedValue([]);
+    mockDb.tweet.count.mockResolvedValue(1);
+    mockDb.tweet.findMany.mockResolvedValue([
+      {
+        id: 'tweet-1',
+        content: 'Not liked',
+        createdAt: new Date('2025-01-01'),
+        author: { id: 'user-1', username: 'testuser' },
+        _count: { likes: 0 },
+      },
+    ]);
+    mockDb.like.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/timeline').set('Authorization', `Bearer ${authToken}`);
+
+    const body = res.body as ApiResponse<TimelineResponseData>;
+
+    expect(body.data).toBeDefined();
+
+    if (!body.data) return;
+
+    expect(body.data.data[0]?.likedByCurrentUser).toBe(false);
+  });
+
+  it('should keep likesCount correct alongside likedByCurrentUser', async () => {
+    mockDb.follow.findMany.mockResolvedValue([]);
+    mockDb.tweet.count.mockResolvedValue(2);
+    mockDb.tweet.findMany.mockResolvedValue([
+      {
+        id: 'tweet-1',
+        content: 'Popular',
+        createdAt: new Date('2025-01-02'),
+        author: { id: 'user-1', username: 'testuser' },
+        _count: { likes: 10 },
+      },
+      {
+        id: 'tweet-2',
+        content: 'Unpopular',
+        createdAt: new Date('2025-01-01'),
+        author: { id: 'user-1', username: 'testuser' },
+        _count: { likes: 0 },
+      },
+    ]);
+    mockDb.like.findMany.mockResolvedValue([{ tweetId: 'tweet-1' }]);
+
+    const res = await request(app).get('/api/timeline').set('Authorization', `Bearer ${authToken}`);
+
+    const body = res.body as ApiResponse<TimelineResponseData>;
+
+    expect(body.data).toBeDefined();
+
+    if (!body.data) return;
+
+    expect(body.data.data[0]?.likesCount).toBe(10);
+    expect(body.data.data[0]?.likedByCurrentUser).toBe(true);
+    expect(body.data.data[1]?.likesCount).toBe(0);
+    expect(body.data.data[1]?.likedByCurrentUser).toBe(false);
+  });
+
+  it('should preserve pagination alongside likedByCurrentUser', async () => {
+    mockDb.follow.findMany.mockResolvedValue([]);
+    mockDb.tweet.count.mockResolvedValue(1);
+    mockDb.tweet.findMany.mockResolvedValue([
+      {
+        id: 'tweet-1',
+        content: 'Paginated',
+        createdAt: new Date('2025-01-01'),
+        author: { id: 'user-1', username: 'testuser' },
+        _count: { likes: 0 },
+      },
+    ]);
+    mockDb.like.findMany.mockResolvedValue([]);
+
+    const res = await request(app)
+      .get('/api/timeline?page=1&limit=10')
+      .set('Authorization', `Bearer ${authToken}`);
+
+    const body = res.body as ApiResponse<TimelineResponseData>;
+
+    expect(body.data).toBeDefined();
+
+    if (!body.data) return;
+
+    expect(body.data.pagination.page).toBe(1);
+    expect(body.data.pagination.limit).toBe(10);
+    expect(body.data.pagination.total).toBe(1);
   });
 });

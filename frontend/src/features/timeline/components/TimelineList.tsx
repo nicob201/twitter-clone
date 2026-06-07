@@ -3,9 +3,11 @@ import TweetCard from './TweetCard.js';
 
 interface TimelineListProps {
   tweets: TimelineTweet[];
+  loadingTweetId?: string | null;
+  onToggleLike?: (tweetId: string, liked: boolean) => void;
 }
 
-function TimelineList({ tweets }: TimelineListProps) {
+function TimelineList({ tweets, loadingTweetId, onToggleLike }: TimelineListProps) {
   if (tweets.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500">
@@ -17,7 +19,12 @@ function TimelineList({ tweets }: TimelineListProps) {
   return (
     <div>
       {tweets.map((tweet) => (
-        <TweetCard key={tweet.id} tweet={tweet} />
+        <TweetCard
+          key={tweet.id}
+          tweet={tweet}
+          disabled={loadingTweetId === tweet.id}
+          onToggleLike={onToggleLike}
+        />
       ))}
     </div>
   );

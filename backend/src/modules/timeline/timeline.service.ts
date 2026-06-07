@@ -40,12 +40,25 @@ export async function getTimeline(
     },
   });
 
+  const tweetIds = tweets.map((t) => t.id);
+
+  const likedByUser =
+    tweetIds.length > 0
+      ? await prisma.like.findMany({
+          where: { userId, tweetId: { in: tweetIds } },
+          select: { tweetId: true },
+        })
+      : [];
+
+  const likedTweetIds = new Set(likedByUser.map((l) => l.tweetId));
+
   const data: TimelineTweet[] = tweets.map((t) => ({
     id: t.id,
     content: t.content,
     createdAt: t.createdAt,
     author: t.author,
     likesCount: t._count.likes,
+    likedByCurrentUser: likedTweetIds.has(t.id),
   }));
 
   return { data, pagination: { page, limit, total } };

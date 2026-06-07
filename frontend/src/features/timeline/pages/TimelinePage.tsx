@@ -1,9 +1,19 @@
 import { useTimeline } from '../hooks/useTimeline.js';
 import TimelineList from '../components/TimelineList.js';
 import CreateTweetForm from '../../tweets/components/CreateTweetForm.js';
+import { useLikeTweet } from '../../likes/hooks/useLikeTweet.js';
 
 function TimelinePage() {
   const { tweets, isLoading, error, refresh } = useTimeline(1, 20);
+  const { like, unlike, loadingTweetId, error: likeError } = useLikeTweet();
+
+  async function handleToggleLike(tweetId: string, liked: boolean) {
+    const success = liked ? await unlike(tweetId) : await like(tweetId);
+
+    if (success) {
+      refresh();
+    }
+  }
 
   if (isLoading) {
     return (
@@ -29,7 +39,18 @@ function TimelinePage() {
           refresh();
         }}
       />
-      <TimelineList tweets={tweets} />
+      {likeError && (
+        <div className="p-2 text-center text-sm text-red-500" data-testid="like-error">
+          {likeError}
+        </div>
+      )}
+      <TimelineList
+        tweets={tweets}
+        loadingTweetId={loadingTweetId}
+        onToggleLike={(tweetId, liked) => {
+          void handleToggleLike(tweetId, liked);
+        }}
+      />
     </div>
   );
 }

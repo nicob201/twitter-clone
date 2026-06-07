@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { AuthContext } from '../../auth/context/AuthContext.js';
 import TimelinePage from '../pages/TimelinePage.js';
 import type { TimelineTweet } from '../types/timeline.types.js';
@@ -21,6 +20,16 @@ vi.mock('../../tweets/api/createTweetApi.js', () => ({
   createTweet: mockCreateTweet,
 }));
 
+const { mockLikeTweet, mockUnlikeTweet } = vi.hoisted(() => ({
+  mockLikeTweet: vi.fn(),
+  mockUnlikeTweet: vi.fn(),
+}));
+
+vi.mock('../../likes/api/likesApi.js', () => ({
+  likeTweet: mockLikeTweet,
+  unlikeTweet: mockUnlikeTweet,
+}));
+
 const mockTweets: TimelineTweet[] = [
   {
     id: '1',
@@ -28,6 +37,7 @@ const mockTweets: TimelineTweet[] = [
     createdAt: '2025-06-01T12:00:00.000Z',
     author: { id: 'user-1', username: 'alice' },
     likesCount: 3,
+    likedByCurrentUser: false,
   },
   {
     id: '2',
@@ -35,6 +45,7 @@ const mockTweets: TimelineTweet[] = [
     createdAt: '2025-06-02T12:00:00.000Z',
     author: { id: 'user-2', username: 'bob' },
     likesCount: 7,
+    likedByCurrentUser: true,
   },
 ];
 
@@ -85,8 +96,25 @@ describe('TimelinePage', () => {
     expect(screen.getByText('Second tweet')).toBeDefined();
     expect(screen.getByText('alice')).toBeDefined();
     expect(screen.getByText('bob')).toBeDefined();
-    expect(screen.getByText('3 likes')).toBeDefined();
-    expect(screen.getByText('7 likes')).toBeDefined();
+    expect(screen.getByText('3')).toBeDefined();
+    expect(screen.getByText('7')).toBeDefined();
+  });
+
+  it('should render likedByCurrentUser state', async () => {
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+
+    renderPage();
+
+    const likedButton = await screen.findByText('7');
+    const likedButtonParent = likedButton.closest('button') as HTMLButtonElement;
+    expect(likedButtonParent.innerHTML).toContain('\u2764');
+
+    const unlikedButton = screen.getByText('3');
+    const unlikedButtonParent = unlikedButton.closest('button') as HTMLButtonElement;
+    expect(unlikedButtonParent.innerHTML).toContain('\u2661');
   });
 
   it('should show empty state when there are no tweets', async () => {
@@ -115,6 +143,129 @@ describe('TimelinePage', () => {
     expect(screen.getByText('Failed to load timeline')).toBeDefined();
   });
 
+  it('should refresh timeline after successful like', async () => {
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+    mockLikeTweet.mockResolvedValue(undefined);
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('First tweet')).toBeDefined();
+    });
+
+    mockFetchTimeline.mockClear();
+
+    const likeButton = screen.getByText('3').closest('button') as HTMLButtonElement;
+    fireEvent.click(likeButton);
+
+    await waitFor(() => {
+      expect(mockFetchTimeline).toHaveBeenCalled();
+    });
+
+    expect(mockLikeTweet).toHaveBeenCalledWith('1');
+  });
+
+  it('should refresh timeline after successful unlike', async () => {
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+    mockUnlikeTweet.mockResolvedValue(undefined);
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Second tweet')).toBeDefined();
+    });
+
+    mockFetchTimeline.mockClear();
+
+    const unlikeButton = screen.getByText('7').closest('button') as HTMLButtonElement;
+    fireEvent.click(unlikeButton);
+
+    await waitFor(() => {
+      expect(mockFetchTimeline).toHaveBeenCalled();
+    });
+
+    expect(mockUnlikeTweet).toHaveBeenCalledWith('2');
+  });
+
+  it('should not refresh timeline when like fails', async () => {
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+    mockLikeTweet.mockRejectedValue(new Error('API error'));
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('First tweet')).toBeDefined();
+    });
+
+    mockFetchTimeline.mockClear();
+
+    const likeButton = screen.getByText('3').closest('button') as HTMLButtonElement;
+    fireEvent.click(likeButton);
+
+    await waitFor(() => {
+      expect(mockLikeTweet).toHaveBeenCalled();
+    });
+
+    expect(mockFetchTimeline).not.toHaveBeenCalled();
+  });
+
+  it('should not refresh timeline when unlike fails', async () => {
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+    mockUnlikeTweet.mockRejectedValue(new Error('API error'));
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Second tweet')).toBeDefined();
+    });
+
+    mockFetchTimeline.mockClear();
+
+    const unlikeButton = screen.getByText('7').closest('button') as HTMLButtonElement;
+    fireEvent.click(unlikeButton);
+
+    await waitFor(() => {
+      expect(mockUnlikeTweet).toHaveBeenCalled();
+    });
+
+    expect(mockFetchTimeline).not.toHaveBeenCalled();
+  });
+
+  it('should display like error when like fails', async () => {
+    mockFetchTimeline.mockResolvedValue({
+      data: mockTweets,
+      pagination: { page: 1, limit: 20, total: 2 },
+    });
+    mockLikeTweet.mockRejectedValue(new Error('API error'));
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('First tweet')).toBeDefined();
+    });
+
+    const likeButton = screen.getByText('3').closest('button') as HTMLButtonElement;
+    fireEvent.click(likeButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('like-error')).toBeDefined();
+    });
+
+    expect(screen.getByText('Failed to update like')).toBeDefined();
+  });
+
   it('should keep existing tweets visible during refresh', async () => {
     mockFetchTimeline.mockResolvedValue({
       data: mockTweets,
@@ -135,6 +286,7 @@ describe('TimelinePage', () => {
         createdAt: '2025-06-03T12:00:00.000Z',
         author: { id: 'user-1', username: 'alice' },
         likesCount: 1,
+        likedByCurrentUser: false,
       },
     ];
 

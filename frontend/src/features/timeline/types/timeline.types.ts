@@ -7,6 +7,7 @@ export interface TimelineTweet {
     username: string;
   };
   likesCount: number;
+  likedByCurrentUser: boolean;
 }
 
 export interface TimelinePagination {
