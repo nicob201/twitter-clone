@@ -1,2 +1,2 @@
-export { successResponse, errorResponse } from './apiResponse';
-export type { ApiResponse } from './apiResponse';
+export { successResponse, errorResponse } from './apiResponse.js';
+export type { ApiResponse } from './apiResponse.js';

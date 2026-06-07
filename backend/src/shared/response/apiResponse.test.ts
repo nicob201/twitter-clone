@@ -1,4 +1,4 @@
-import { successResponse, errorResponse } from './apiResponse';
+import { successResponse, errorResponse } from './apiResponse.js';
 
 describe('apiResponse', () => {
   it('should create a success response with data', () => {

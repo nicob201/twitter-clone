@@ -1,4 +1,4 @@
-import { AppError } from './AppError';
+import { AppError } from './AppError.js';
 
 describe('AppError', () => {
   it('should create an operational error with status code and message', () => {
