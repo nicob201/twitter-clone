@@ -1,0 +1,12 @@
+# Normalize text files to LF on checkout
+* text=auto eol=lf
+
+# Force LF for shell scripts (prevents CRLF execution failures)
+*.sh text eol=lf
+
+# Explicitly mark binary formats
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary

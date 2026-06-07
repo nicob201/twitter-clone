@@ -53,7 +53,9 @@ describe('useUserSearch', () => {
 
     const { result } = renderHook(() => useUserSearch());
 
-    result.current.search('alice');
+    act(() => {
+      result.current.search('alice');
+    });
 
     await waitFor(() => {
       expect(result.current.users).toEqual(mockUsers);
@@ -69,7 +71,9 @@ describe('useUserSearch', () => {
 
     const { result } = renderHook(() => useUserSearch());
 
-    result.current.search('xyz');
+    act(() => {
+      result.current.search('xyz');
+    });
 
     await waitFor(() => {
       expect(result.current.users).toEqual([]);
@@ -86,7 +90,9 @@ describe('useUserSearch', () => {
 
     const { result } = renderHook(() => useUserSearch());
 
-    result.current.search('alice');
+    act(() => {
+      result.current.search('alice');
+    });
 
     await waitFor(() => {
       expect(result.current.error).toBe('Search failed');
@@ -100,7 +106,9 @@ describe('useUserSearch', () => {
 
     const { result } = renderHook(() => useUserSearch());
 
-    result.current.search('alice');
+    act(() => {
+      result.current.search('alice');
+    });
 
     await waitFor(() => {
       expect(result.current.error).toBe('Failed to search users.');

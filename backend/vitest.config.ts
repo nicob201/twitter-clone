@@ -9,6 +9,12 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts', 'src/**/*.config.*', 'src/**/__tests__/**'],
+      reporter: ['text', 'lcov'],
+    },
   },
   resolve: {
     alias: {

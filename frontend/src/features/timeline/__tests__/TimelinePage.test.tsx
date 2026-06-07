@@ -391,10 +391,7 @@ describe('TimelinePage', () => {
   });
 
   it('should prevent duplicate delete requests', async () => {
-    let resolveDeferred: (v?: undefined) => void = () => {};
-    const deferred = new Promise<undefined>((resolve) => {
-      resolveDeferred = resolve;
-    });
+    const deferred = new Promise<undefined>(() => {});
 
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     mockFetchTimeline.mockResolvedValue({
@@ -416,7 +413,5 @@ describe('TimelinePage', () => {
     await waitFor(() => {
       expect(mockDeleteTweet).toHaveBeenCalledTimes(1);
     });
-
-    resolveDeferred();
   });
 });
