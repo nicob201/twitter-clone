@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../features/auth/hooks/useAuth.js';
 
 function Header() {
@@ -6,7 +7,9 @@ function Header() {
   return (
     <header className="sticky top-0 z-10 border-b border-gray-100 bg-white lg:hidden">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <span className="text-xl font-bold text-blue-500">Twitter Clone</span>
+        <Link to="/" className="text-xl font-bold text-blue-500 hover:text-blue-600">
+          Twitter Clone
+        </Link>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-600">{user?.username}</span>
           <button
