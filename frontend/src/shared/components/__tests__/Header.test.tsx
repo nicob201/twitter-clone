@@ -1,13 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { AuthContext } from '../../../features/auth/context/AuthContext.js';
+import { AuthContext, type AuthContextType } from '../../../features/auth/context/AuthContext.js';
 import Header from '../Header.js';
 
-function renderHeader(authValue: Record<string, unknown>) {
+function renderHeader(authValue: AuthContextType) {
   return render(
     <MemoryRouter>
-      <AuthContext.Provider value={authValue as any}>
+      <AuthContext.Provider value={authValue}>
         <Header />
       </AuthContext.Provider>
     </MemoryRouter>,
