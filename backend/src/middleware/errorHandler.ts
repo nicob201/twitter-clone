@@ -6,7 +6,7 @@ import { errorResponse } from '../shared/response/index.js';
 
 export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction): void {
   if (err instanceof ZodError) {
-    const message = err.errors[0]?.message ?? 'Validation error';
+    const message = err.issues[0]?.message ?? 'Validation error';
     res.status(400).json(errorResponse(message));
     return;
   }

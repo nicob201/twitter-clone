@@ -1,9 +1,6 @@
 import { z } from 'zod';
 
-const emailTransform = z
-  .string()
-  .email('Invalid email')
-  .transform((v) => v.trim().toLowerCase());
+const emailTransform = z.email('Invalid email').transform((v) => v.trim().toLowerCase());
 const passwordRegister = z.string().min(8, 'Password must be at least 8 characters');
 
 export const registerSchema = z.object({
